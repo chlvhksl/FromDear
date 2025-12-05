@@ -4,7 +4,13 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "FromDear - 12월을 위한 따뜻한 메시지",
   description: "익명으로 받는 롤링페이퍼와 어드벤트 캘린더",
-  viewport: "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no",
+};
+
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
 };
 
 export default function RootLayout({
