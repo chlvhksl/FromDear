@@ -74,7 +74,7 @@ export default async function Image({ params }: { params: { link_id: string } })
                         textAlign: 'center',
                     }}
                 >
-                    크리스마스 선물 상자
+                    선물 상자
                 </div>
 
                 <div

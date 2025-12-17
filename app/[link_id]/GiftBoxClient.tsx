@@ -80,11 +80,11 @@ export default function GiftBoxClient({ params }: { params: { link_id: string } 
             <div className="relative z-10 max-w-5xl mx-auto">
                 <div className="text-center mb-12">
                     <div className="inline-block px-4 py-1 bg-white/80 backdrop-blur-sm rounded-full text-red-600 text-sm font-medium mb-4 shadow-sm border border-white">
-                        FromDear 🎄 Merry Christmas
+                        FromDear ❄️ Happy Winter
                     </div>
                     <h1 className="text-4xl md:text-6xl font-black text-gray-900 mb-6 tracking-tight">
                         <span className="text-green-600">{user.username}</span>님의
-                        <br className="md:hidden" /> 크리스마스 선물 상자 🎁
+                        <br className="md:hidden" /> 선물 상자 🎁
                     </h1>
                     <p className="text-xl text-gray-600 mb-10 max-w-xl mx-auto font-medium">
                         따뜻한 마음이 배달왔어요.<br />

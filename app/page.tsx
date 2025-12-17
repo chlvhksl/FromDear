@@ -15,13 +15,13 @@ export default function Home() {
           {/* 메인 타이틀 */}
           <div className="mb-12 animate-float">
             <div className="inline-block px-4 py-1 rounded-full bg-green-100 text-green-700 font-bold text-sm mb-6 border border-green-200 shadow-sm">
-              🎄 크리스마스에 전하는 따뜻한 마음
+              ❄️ 추운 겨울, 전하는 따뜻한 마음
             </div>
             <h1 className="text-7xl md:text-9xl font-black mb-6 text-transparent bg-clip-text bg-gradient-to-r from-red-600 via-green-600 to-red-600 drop-shadow-sm tracking-tight">
               FromDear
             </h1>
             <p className="text-xl md:text-3xl text-gray-700 font-medium leading-relaxed text-balance">
-              이번 크리스마스에는<br />
+              이번 겨울에는<br />
               <span className="text-red-600 font-bold underline decoration-wavy decoration-red-200 underline-offset-4">익명의 진심을 선물하세요</span>
             </p>
           </div>
@@ -41,7 +41,7 @@ export default function Home() {
               href="/auth"
               className="px-10 py-5 bg-green-700 text-white font-bold rounded-full shadow-lg hover:shadow-xl hover:bg-green-800 transition-all duration-300 text-xl border border-green-600"
             >
-              로그인하기 🎄
+              로그인하기 ❄️
             </Link>
           </div>
         </div>
@@ -55,7 +55,7 @@ export default function Home() {
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-20">
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-              서로의 산타가 되어주세요
+              서로에게 가장 따뜻한 선물이 되어주세요
             </h2>
             <p className="text-xl text-gray-500">
               물질적인 선물보다 더 값진, 마음을 나눕니다.
@@ -89,7 +89,7 @@ export default function Home() {
               <h3 className="text-2xl font-bold mb-4 text-gray-900">소중한 추억</h3>
               <p className="text-gray-600 leading-relaxed">
                 받은 선물은 언제든 꺼내볼 수 있어요.<br />
-                이번 크리스마스를 특별하게 기억하세요.
+                이번 겨울을 특별하게 기억하세요.
               </p>
             </div>
           </div>

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "FromDear - 크리스마스 선물 상자 🎁",
+  title: "FromDear - 선물 상자 🎁",
   description: "친구들과 마음을 주고받는 따뜻한 익명 선물 상자",
 };
 

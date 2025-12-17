@@ -36,10 +36,10 @@ export async function generateMetadata(
     const username = user?.username || '익명';
 
     return {
-        title: `${username}님의 크리스마스 선물 상자 🎁`,
+        title: `${username}님의 선물 상자 🎁`,
         description: `${username}님에게 따뜻한 마음을 담은 선물을 보내보세요!`,
         openGraph: {
-            title: `${username}님의 크리스마스 선물 상자 🎁`,
+            title: `${username}님의 선물 상자 🎁`,
             description: `${username}님에게 따뜻한 마음을 담은 선물을 보내보세요!`,
         },
     };

@@ -90,7 +90,7 @@ export default function DashboardPage() {
                 <header className="flex flex-col md:flex-row justify-between items-center mb-10 gap-6">
                     <div className="text-center md:text-left">
                         <div className="inline-block px-3 py-1 bg-red-100 text-red-600 rounded-full text-xs font-bold mb-2">
-                            Merry Christmas 🎄
+                            Happy Winter ❄️
                         </div>
                         <h1 className="text-3xl md:text-4xl font-black text-gray-900">
                             {user?.username}님의 선물 상자 🎁
