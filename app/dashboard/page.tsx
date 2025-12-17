@@ -105,7 +105,7 @@ export default function DashboardPage() {
                             onClick={copyLink}
                             className="flex-1 md:flex-none px-6 py-3 bg-white text-gray-700 border border-gray-200 rounded-xl font-bold hover:bg-gray-50 hover:border-gray-300 transition-all shadow-sm flex items-center justify-center gap-2"
                         >
-                            {copySuccess ? '✅ 복사 완료!' : '🔗 내 우체통 링크 복사'}
+                            {copySuccess ? '✅ 복사 완료!' : '🔗 내 선물 상자 링크 복사'}
                         </button>
                         <button
                             onClick={async () => {

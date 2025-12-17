@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "FromDear - 12월을 위한 따뜻한 메시지",
-  description: "익명으로 받는 롤링페이퍼와 어드벤트 캘린더",
+  title: "FromDear - 크리스마스 선물 상자 🎁",
+  description: "친구들과 마음을 주고받는 따뜻한 익명 선물 상자",
 };
 
 export const viewport = {
