@@ -35,5 +35,5 @@ jobs:
           destination-github-username: 'FromDear'
           destination-repository-name: 'FromDear.github.io'
           user-email: 'github-actions[bot]@users.noreply.github.com'
-          target-branch: 'main'
+          target-branch: 'master'
           target-directory: '.' 
