@@ -27,13 +27,34 @@ jobs:
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
 
       - name: Deploy to Public Repository
-        uses: cpina/github-action-push-to-another-repository@main
         env:
           API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
-        with:
-          source-directory: 'out'
-          destination-github-username: 'FromDear'
-          destination-repository-name: 'FromDear.github.io'
-          user-email: 'github-actions[bot]@users.noreply.github.com'
-          target-branch: 'master'
-          target-directory: '.' 
+          TARGET_REPO: 'FromDear/FromDear.github.io'
+          TARGET_BRANCH: 'master'
+        run: |
+          echo "Cloning destination repository..."
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+          
+          # Clone the target repository to a temporary directory
+          git clone --depth 1 --branch $TARGET_BRANCH https://x-access-token:$API_TOKEN_GITHUB@github.com/$TARGET_REPO.git deployment_repo
+          
+          echo "Clearing old content..."
+          cd deployment_repo
+          # Remove all files except .git
+          find . -maxdepth 1 ! -name '.git' ! -name '.' ! -name '..' -exec rm -rf {} +
+          
+          echo "Copying new build..."
+          # Copy build artifacts from parent 'out' directory
+          cp -R ../out/. .
+          
+          echo "Pushing changes..."
+          git add .
+          
+          # Only commit if there are changes
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Deploy: Update from source"
+            git push origin $TARGET_BRANCH
+          fi 
