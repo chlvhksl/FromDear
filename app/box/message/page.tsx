@@ -1,23 +1,28 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
 
-export default function MessagePage({ params }: { params: { link_id: string } }) {
+function MessageContent() {
     const router = useRouter();
+    const searchParams = useSearchParams();
+    const link_id = searchParams.get('id');
+
     const [content, setContent] = useState('');
     const [senderName, setSenderName] = useState('');
     const [loading, setLoading] = useState(false);
     const [user, setUser] = useState<any>(null);
 
     useEffect(() => {
+        if (!link_id) return;
+
         const fetchUser = async () => {
             const { data: profile } = await supabase
                 .from('users')
                 .select('*')
-                .eq('link_id', params.link_id) // Use link_id for lookup
+                .eq('link_id', link_id)
                 .single();
 
             if (profile) {
@@ -25,7 +30,7 @@ export default function MessagePage({ params }: { params: { link_id: string } })
             }
         };
         fetchUser();
-    }, [params.link_id]);
+    }, [link_id]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -36,10 +41,13 @@ export default function MessagePage({ params }: { params: { link_id: string } })
             // 1. Analyze Emotion via AI
             let emotionAnalysis = null;
             try {
-                const aiResponse = await fetch('/api/analyze-emotion', {
+                const aiResponse = await fetch('https://vlydnlmwwhofsksikaeh.supabase.co/functions/v1/analyze-emotion', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ content }),
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}`
+                    },
+                    body: JSON.stringify({ message: content }),
                 });
                 if (aiResponse.ok) {
                     emotionAnalysis = await aiResponse.json();
@@ -60,7 +68,7 @@ export default function MessagePage({ params }: { params: { link_id: string } })
             if (error) throw error;
 
             alert(`마음의 선물이 성공적으로 전달되었어요! 🎁`);
-            router.push(`/${params.link_id}`);
+            router.push(`/box?id=${link_id}`);
 
         } catch (error: any) {
             console.error('Message Send Error:', error);
@@ -80,7 +88,7 @@ export default function MessagePage({ params }: { params: { link_id: string } })
                         {user.username}님에게 마음 선물하기 🎁
                     </h1>
                     <p className="text-gray-500 mt-2 text-sm">
-                        따뜻한 크리스마스 인사를 남겨주세요.<br />
+                        따뜻한 겨울 인사를 남겨주세요.<br />
                         친구에게 바로 배달됩니다.
                     </p>
                 </div>
@@ -127,11 +135,19 @@ export default function MessagePage({ params }: { params: { link_id: string } })
                 </form>
 
                 <div className="mt-6 text-center">
-                    <Link href={`/${params.link_id}`} className="text-sm text-gray-500 hover:text-gray-700">
+                    <Link href={`/box?id=${link_id}`} className="text-sm text-gray-500 hover:text-gray-700">
                         취소하고 돌아가기
                     </Link>
                 </div>
             </div>
         </main>
+    );
+}
+
+export default function MessagePage() {
+    return (
+        <Suspense fallback={<div className="min-h-screen flex items-center justify-center">로딩 중...</div>}>
+            <MessageContent />
+        </Suspense>
     );
 }

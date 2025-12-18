@@ -98,7 +98,7 @@ export default function Home() {
 
       {/* 푸터 */}
       <footer className="bg-gray-900 text-gray-400 py-12 px-4 text-center relative z-10">
-        <p className="font-medium">© 2025 FromDear. Made by 795space</p>
+        <p className="font-medium">© 2025 FromDear. Created by 795space</p>
       </footer>
     </main>
   );

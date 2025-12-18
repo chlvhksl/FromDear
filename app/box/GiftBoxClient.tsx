@@ -93,7 +93,7 @@ export default function GiftBoxClient({ params }: { params: { link_id: string } 
 
                     <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
                         <Link
-                            href={`/${params.link_id}/message`}
+                            href={`/box/message?id=${params.link_id}`}
                             className="inline-block px-10 py-4 bg-gradient-to-r from-red-600 to-green-600 text-white font-bold rounded-full shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 text-lg animate-pulse"
                         >
                             나도 선물 보내기 🎁

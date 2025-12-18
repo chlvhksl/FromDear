@@ -55,7 +55,7 @@ export default function DashboardPage() {
 
     const copyLink = () => {
         if (!user || !user.link_id) return;
-        const url = `${window.location.origin}/${user.link_id}`;
+        const url = `${window.location.origin}/box?id=${user.link_id}`;
         navigator.clipboard.writeText(url);
         setCopySuccess('링크가 복사되었습니다!');
         setTimeout(() => setCopySuccess(''), 2000);
@@ -169,7 +169,7 @@ export default function DashboardPage() {
                         친구들에게 링크를 공유하고 더 많은 메시지를 받아보세요!
                     </p>
                     <div className="inline-block bg-white px-4 py-2 rounded-lg border border-gray-200 text-gray-500 text-sm">
-                        {window.location.origin}/{user?.link_id}
+                        {window.location.origin}/box?id={user?.link_id}
                     </div>
                 </div>
             </div>
