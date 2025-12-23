@@ -154,7 +154,7 @@ function MessageContent() {
                         disabled={loading}
                         className="w-full py-3 bg-gradient-to-r from-red-500 to-green-500 text-white font-bold rounded-lg shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all disabled:opacity-50"
                     >
-                        {loading ? 'AI가 선물 포장 중... 🎁' : '선물 보내기 🎁'}
+                        {loading ? '선물 포장 중... 🎁' : '선물 보내기 🎁'}
                     </button>
                 </form>
 
