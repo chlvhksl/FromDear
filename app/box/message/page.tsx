@@ -14,6 +14,7 @@ function MessageContent() {
     const [senderName, setSenderName] = useState('');
     const [loading, setLoading] = useState(false);
     const [user, setUser] = useState<any>(null);
+    const [isSubmitted, setIsSubmitted] = useState(false);
 
     useEffect(() => {
         if (!link_id) return;
@@ -67,10 +68,8 @@ function MessageContent() {
 
             if (error) throw error;
 
-            alert(`마음의 선물이 성공적으로 전달되었어요! 🎁`);
-            alert(`마음의 선물이 성공적으로 전달되었어요! 🎁`);
-            // Force reload to ensure data fetch sees the new message
-            window.location.href = `/box?id=${link_id}`;
+            // Success: Switch to success view instead of alert
+            setIsSubmitted(true);
 
         } catch (error: any) {
             console.error('Message Send Error:', error);
@@ -81,6 +80,29 @@ function MessageContent() {
     };
 
     if (!user) return <div className="min-h-screen flex items-center justify-center">로딩 중...</div>;
+
+    if (isSubmitted) {
+        return (
+            <main className="min-h-screen bg-gradient-to-br from-red-50 via-white to-green-50 py-10 px-4 flex items-center justify-center">
+                <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-10 border-2 border-green-100 text-center">
+                    <div className="text-6xl mb-6 animate-bounce">🎁</div>
+                    <h2 className="text-3xl font-bold text-gray-800 mb-4">
+                        선물 배달 완료!
+                    </h2>
+                    <p className="text-gray-600 mb-8 text-lg">
+                        {user.username}님에게 마음을<br />
+                        성공적으로 전달했어요.
+                    </p>
+                    <button
+                        onClick={() => window.location.href = `/box?id=${link_id}`}
+                        className="w-full py-4 bg-green-600 text-white font-bold rounded-xl hover:bg-green-700 transition-colors shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+                    >
+                        선물함으로 돌아가기 →
+                    </button>
+                </div>
+            </main>
+        );
+    }
 
     return (
         <main className="min-h-screen bg-gradient-to-br from-red-50 via-white to-green-50 py-10 px-4">
