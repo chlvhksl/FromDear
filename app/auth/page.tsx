@@ -11,13 +11,10 @@ export default function AuthPage() {
   const handleSocialLogin = async (provider: 'kakao' | 'google') => {
     setLoading(true);
     try {
-      const redirectUrl = `${window.location.origin}/auth/callback`;
-      console.log('Attempting login with redirect to:', redirectUrl);
-
       const { error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
-          redirectTo: redirectUrl,
+          redirectTo: `${window.location.origin}/auth/callback`,
         },
       });
       if (error) throw error;
