@@ -150,8 +150,11 @@ export default function GiftBoxClient({ params }: { params: { link_id: string } 
                                     <span className="text-6xl mb-4 transform group-hover:scale-110 transition-transform duration-300">
                                         {msg.is_opened ? '🧸' : '🎁'}
                                     </span>
-                                    <span className="text-sm font-bold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
+                                    <span className="text-sm font-bold text-gray-500 bg-gray-100 px-3 py-1 rounded-full z-10">
                                         {msg.sender_name || '익명'}
+                                    </span>
+                                    <span className="text-xs text-gray-400 mt-2 font-mono">
+                                        {new Date(msg.created_at).toLocaleDateString()}
                                     </span>
                                     {!msg.is_opened && (
                                         <div className="absolute top-4 right-4 w-3 h-3 bg-red-500 rounded-full animate-ping" />
