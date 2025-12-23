@@ -53,7 +53,7 @@ export default function GiftBoxClient({ params }: { params: { link_id: string } 
 
         if (data && data.content) {
             // Success! User is the owner
-            setSelectedMessage(prev => ({ ...prev, content: data.content }));
+            setSelectedMessage((prev: any) => ({ ...prev, content: data.content }));
 
             // Mark as opened if needed
             if (!msg.is_opened) {
@@ -63,13 +63,13 @@ export default function GiftBoxClient({ params }: { params: { link_id: string } 
                     .eq('id', msg.id);
 
                 // Update local state
-                setMessages(prev => prev.map(m => m.id === msg.id ? { ...m, is_opened: true } : m));
+                setMessages((prev: any[]) => prev.map(m => m.id === msg.id ? { ...m, is_opened: true } : m));
             }
         } else {
             // Failed to get content -> User is a guest
             // Keep selectedMessage but indicate it's private
             // We use a special flag or just null content to separate logic in render
-            setSelectedMessage(prev => ({ ...prev, is_private: true }));
+            setSelectedMessage((prev: any) => ({ ...prev, is_private: true }));
         }
     };
 
