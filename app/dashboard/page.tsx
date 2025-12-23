@@ -139,25 +139,21 @@ export default function DashboardPage() {
                                     key={msg.id}
                                     onClick={() => handleMessageClick(msg)}
                                     className={`
-                                        aspect-square rounded-3xl p-6 shadow-lg relative overflow-hidden group cursor-pointer transition-all duration-300 flex flex-col items-center justify-center
+                                        aspect-square rounded-3xl p-4 md:p-6 shadow-lg relative overflow-hidden group cursor-pointer transition-all duration-300 flex flex-col items-center justify-center
                                         ${msg.is_opened ? 'bg-white' : 'bg-red-50 border-2 border-red-100'}
                                         hover:-translate-y-2 hover:shadow-2xl
                                     `}
                                 >
-                                    <span className="text-6xl mb-4 transform group-hover:scale-110 transition-transform duration-300">
+                                    <span className="text-6xl md:text-7xl mb-4 md:mb-5 transform group-hover:scale-110 transition-transform duration-300">
                                         {msg.is_opened ? '🧸' : '🎁'}
                                     </span>
-                                    <span className={`text-sm font-bold px-3 py-1 rounded-full ${msg.is_opened ? 'bg-gray-100 text-gray-500' : 'bg-red-100 text-red-600'}`}>
+                                    <span className={`text-sm md:text-base font-bold px-3 py-1 rounded-full truncate max-w-[90%] ${msg.is_opened ? 'bg-gray-100 text-gray-500' : 'bg-red-100 text-red-600'}`}>
                                         {msg.sender_name || '익명'}
                                     </span>
 
                                     {!msg.is_opened && (
                                         <div className="absolute top-4 right-4 w-3 h-3 bg-red-600 rounded-full animate-ping" />
                                     )}
-
-                                    <span className="absolute bottom-4 text-xs text-gray-400 font-mono">
-                                        {new Date(msg.created_at).toLocaleDateString()}
-                                    </span>
                                 </div>
                             ))}
                         </div>
