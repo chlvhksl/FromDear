@@ -68,7 +68,9 @@ function MessageContent() {
             if (error) throw error;
 
             alert(`마음의 선물이 성공적으로 전달되었어요! 🎁`);
-            router.push(`/box?id=${link_id}`);
+            alert(`마음의 선물이 성공적으로 전달되었어요! 🎁`);
+            // Force reload to ensure data fetch sees the new message
+            window.location.href = `/box?id=${link_id}`;
 
         } catch (error: any) {
             console.error('Message Send Error:', error);

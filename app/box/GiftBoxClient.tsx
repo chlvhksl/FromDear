@@ -86,6 +86,12 @@ export default function GiftBoxClient({ params }: { params: { link_id: string } 
                         <span className="text-green-600">{user.username}</span>님의
                         <br className="md:hidden" /> 선물함 🎁
                     </h1>
+
+                    {/* Gift Counter Badge */}
+                    <div className="inline-flex items-center gap-2 bg-red-100 text-red-600 px-6 py-2 rounded-full font-bold text-lg mb-8 shadow-sm">
+                        <span>총 {messages.length}개의 선물이 도착했어요!</span>
+                    </div>
+
                     <p className="text-xl text-gray-600 mb-10 max-w-xl mx-auto font-medium">
                         따뜻한 마음이 배달왔어요.<br />
                         도착한 선물들을 열어보세요!
