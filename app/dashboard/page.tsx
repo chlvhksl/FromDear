@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
+import html2canvas from 'html2canvas';
 import Link from 'next/link';
 import SnowEffect from '@/components/SnowEffect';
 
@@ -13,6 +14,7 @@ export default function DashboardPage() {
     const [loading, setLoading] = useState(true);
     const [copySuccess, setCopySuccess] = useState('');
     const [selectedMessage, setSelectedMessage] = useState<any>(null);
+    const [isSharing, setIsSharing] = useState(false);
 
     useEffect(() => {
         const checkUser = async () => {
@@ -71,6 +73,55 @@ export default function DashboardPage() {
                 .eq('id', msg.id);
 
             setMessages(prev => prev.map(m => m.id === msg.id ? { ...m, is_opened: true } : m));
+        }
+    };
+
+    const handleShareDashboard = async () => {
+        if (isSharing) return;
+        setIsSharing(true);
+        try {
+            const element = document.querySelector('main') as HTMLElement;
+            if (!element) return;
+
+            const canvas = await html2canvas(element, {
+                useCORS: true,
+                scale: 2,
+                backgroundColor: '#FFF5F5',
+                ignoreElements: (node) => {
+                    return node.textContent?.includes('내 선물함 공유하기') || false;
+                }
+            });
+
+            canvas.toBlob(async (blob) => {
+                if (!blob) {
+                    alert('이미지 생성 실패 😢');
+                    return;
+                }
+                const file = new File([blob], 'my-gift-box.png', { type: 'image/png' });
+
+                if (navigator.share && navigator.canShare({ files: [file] })) {
+                    try {
+                        await navigator.share({
+                            files: [file],
+                            title: '내 선물함',
+                            text: `이번 겨울, ${messages.length}개의 마음을 받았어요! 🎁\n너도 나한테 선물 주라!\n👉 ${window.location.origin}/box?id=${user.link_id}`
+                        });
+                    } catch (shareError) {
+                        if ((shareError as any).name !== 'AbortError') console.error('Share failed', shareError);
+                    }
+                } else {
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(blob);
+                    link.download = 'my-date.png';
+                    link.click();
+                    alert('이미지가 저장되었습니다! 인스타그램 스토리에 공유해보세요 📸');
+                }
+            }, 'image/png');
+        } catch (error) {
+            console.error('Capture failed', error);
+            alert('공유하기 기능을 실행할 수 없어요.');
+        } finally {
+            setIsSharing(false);
         }
     };
 
@@ -169,6 +220,19 @@ export default function DashboardPage() {
                     </div>
                 </div>
             </div>
+
+            {/* --- Share Button --- */}
+            {messages.length > 0 && (
+                <div className="fixed bottom-6 right-6 z-40">
+                    <button
+                        onClick={handleShareDashboard}
+                        disabled={isSharing}
+                        className={`flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white font-bold rounded-full shadow-xl hover:bg-indigo-700 transition-all hover:-translate-y-1 ${isSharing ? 'opacity-75 cursor-wait' : ''}`}
+                    >
+                        <span>{isSharing ? '준비 중...' : '내 선물함 공유하기 📸'}</span>
+                    </button>
+                </div>
+            )}
 
             {/* Message Detail Modal */}
             {selectedMessage && (

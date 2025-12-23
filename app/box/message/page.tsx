@@ -33,15 +33,86 @@ function MessageContent() {
         fetchUser();
     }, [link_id]);
 
+    // ==========================================
+    // ENHANCED LOCAL ANALYSIS LOGIC (FALLBACK)
+    // ==========================================
+    const analyzeLocally = (text: string) => {
+        // 1. Expanded Keyword Dictionary
+        const keywords: Record<string, string[]> = {
+            "사랑 ❤️": ["사랑", "love", "러브", "좋아", "하트", "heart", "아껴", "소중", "평생", "영원", "내꺼", "예뻐", "멋져", "쪽", "알라뷰"],
+            "감동 🥹": ["고마", "감사", "땡큐", "thanks", "덕분", "감동", "눈물", "울컥", "찐심", "진심", "잊지"],
+            "응원 💪": ["화이팅", "파이팅", "힘내", "응원", "할수있어", "믿어", "대박", "가즈아", "성공", "합격", "잘될", "포기하지마"],
+            "축하 🎉": ["축하", "메리", "해피", "happy", "merry", "겨울", "winter", "크리스마스", "성탄", "산타", "선물", "파티", "종강", "방학", "새해"],
+            "설렘 💓": ["기대", "두근", "설레", "보고싶", "만나", "데이트", "준비", "떨려", "빨리", "기다려"],
+            "위로 ☕️": ["수고", "고생", "괜찮", "토닥", "따뜻", "건강", "감기", "조심", "밥", "휴식", "힐링", "걱정마"],
+            "유머 ㅋ": ["ㅋㅋ", "ㅎㅎ", "빵터", "재미", "웃겨", "센스", "꿀잼", "장난", "드립"]
+        };
+
+        // 2. Calculate Base Scores
+        let scores: Record<string, number> = {};
+        for (const emotion of Object.keys(keywords)) { scores[emotion] = 0; }
+
+        for (const [emotion, wordList] of Object.entries(keywords)) {
+            for (const word of wordList) {
+                if (text.includes(word)) {
+                    scores[emotion] += 15;
+                }
+            }
+        }
+
+        // 3. Add Magic Ingredients (Random Flavor)
+        if (Object.values(scores).reduce((a, b) => a + b, 0) === 0) {
+            scores["따뜻한 마음 🔥"] = 50;
+        }
+
+        const magicIngredients = [
+            "크리스마스 마법 🪄", "눈오는 날의 추억 ☃️", "100% 진심 💝",
+            "붕어빵의 온기 🥖", "새해 복 🧧", "산타의 실수 🎅"
+        ];
+        const randomMagic = magicIngredients[Math.floor(Math.random() * magicIngredients.length)];
+        scores[randomMagic] = 10;
+
+        // 4. Sort and Pick Top 4
+        const sorted = Object.entries(scores)
+            .filter(([_, score]) => score > 0)
+            .sort((a, b) => b[1] - a[1])
+            .map(([emo, score]) => [emo, score + Math.floor(Math.random() * 5)] as [string, number]);
+
+        let finalPicks = sorted.slice(0, 4);
+
+        // 5. Normalize to 100%
+        const totalScore = finalPicks.reduce((sum, [_, score]) => sum + score, 0);
+        const result: Record<string, number> = {};
+
+        if (totalScore > 0) {
+            let currentSum = 0;
+            finalPicks.forEach(([emo, score], index) => {
+                const percent = index === finalPicks.length - 1
+                    ? 100 - currentSum
+                    : Math.round((score / totalScore) * 100);
+                result[emo] = percent;
+                currentSum += percent;
+            });
+        } else {
+            result["따뜻한 마음 🔥"] = 100;
+        }
+
+        return result;
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!user || loading) return;
         setLoading(true);
 
         try {
-            // 1. Analyze Emotion via AI
+            // 1. Analyze Emotion via AI (Try API -> Fallback to Local)
             let emotionAnalysis = null;
             try {
+                // Short timeout for API to avoid waiting too long
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 3000);
+
                 const aiResponse = await fetch('https://vlydnlmwwhofsksikaeh.supabase.co/functions/v1/analyze-emotion', {
                     method: 'POST',
                     headers: {
@@ -49,12 +120,23 @@ function MessageContent() {
                         'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}`
                     },
                     body: JSON.stringify({ message: content }),
+                    signal: controller.signal
                 });
+                clearTimeout(timeoutId);
+
                 if (aiResponse.ok) {
                     emotionAnalysis = await aiResponse.json();
+                } else {
+                    throw new Error('API failed');
                 }
             } catch (err) {
-                console.warn('AI Analysis failed, proceeding without it', err);
+                console.warn('AI Analysis failed, using enhanced local analysis', err);
+                emotionAnalysis = analyzeLocally(content);
+            }
+
+            // If API returned null/empty for some reason, ensure fallback
+            if (!emotionAnalysis || Object.keys(emotionAnalysis).length === 0) {
+                emotionAnalysis = analyzeLocally(content);
             }
 
             // 2. Save Message with Analysis
