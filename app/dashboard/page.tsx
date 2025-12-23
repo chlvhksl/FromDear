@@ -87,7 +87,7 @@ export default function DashboardPage() {
                 useCORS: true,
                 scale: 2,
                 backgroundColor: '#FFF5F5',
-                ignoreElements: (node) => {
+                ignoreElements: (node: Element) => {
                     return node.textContent?.includes('내 선물함 공유하기') || false;
                 }
             } as any);
