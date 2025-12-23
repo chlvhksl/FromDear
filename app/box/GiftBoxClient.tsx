@@ -47,13 +47,17 @@ export default function GiftBoxClient({ params }: { params: { link_id: string } 
         // If RLS is set correctly, this will fail or return empty if not owner
         const { data, error } = await supabase
             .from('messages')
-            .select('content, is_opened')
+            .select('content, is_opened, emotion_analysis')
             .eq('id', msg.id)
             .single();
 
         if (data && data.content) {
             // Success! User is the owner
-            setSelectedMessage((prev: any) => ({ ...prev, content: data.content }));
+            setSelectedMessage((prev: any) => ({
+                ...prev,
+                content: data.content,
+                emotion_analysis: data.emotion_analysis
+            }));
 
             // Mark as opened if needed
             if (!msg.is_opened) {
