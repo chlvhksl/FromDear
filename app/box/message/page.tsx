@@ -175,12 +175,20 @@ function MessageContent() {
                         {user.username}님에게 마음을<br />
                         성공적으로 전달했어요.
                     </p>
-                    <button
-                        onClick={() => window.location.href = `/box?id=${link_id}`}
-                        className="w-full py-4 bg-green-600 text-white font-bold rounded-xl hover:bg-green-700 transition-colors shadow-lg hover:shadow-xl transform hover:-translate-y-1"
-                    >
-                        선물함으로 돌아가기 →
-                    </button>
+                    <div className="flex flex-col gap-3">
+                        <button
+                            onClick={() => window.location.href = `/box?id=${link_id}`}
+                            className="w-full py-4 bg-green-600 text-white font-bold rounded-xl hover:bg-green-700 transition-colors shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+                        >
+                            친구 선물함으로 돌아가기
+                        </button>
+                        <button
+                            onClick={() => window.location.href = '/'}
+                            className="w-full py-4 bg-red-600 text-white font-bold rounded-xl hover:bg-red-700 transition-colors shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+                        >
+                            나도 선물함 만들기 🎁
+                        </button>
+                    </div>
                 </div>
             </main>
         );
