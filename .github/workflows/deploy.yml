@@ -28,7 +28,7 @@ jobs:
         env:
           API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
           TARGET_REPO: 'FromDear/FromDear.github.io'
-          TARGET_BRANCH: 'master'
+          TARGET_BRANCH: 'gh-pages'
         run: |
           echo "Cloning destination repository..."
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
