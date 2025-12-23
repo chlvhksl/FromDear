@@ -84,7 +84,7 @@ export default function OnboardingPage() {
                         반가워요! 👋
                     </h1>
                     <p className="text-gray-600">
-                        선물 상자에 사용할 이름을<br />
+                        선물함에 사용할 이름을<br />
                         정해주세요.
                     </p>
                 </div>

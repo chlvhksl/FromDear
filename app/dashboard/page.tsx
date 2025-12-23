@@ -93,7 +93,7 @@ export default function DashboardPage() {
                             Happy Winter ❄️
                         </div>
                         <h1 className="text-3xl md:text-4xl font-black text-gray-900">
-                            {user?.username}님의 선물 상자 🎁
+                            {user?.username}님의 선물함 🎁
                         </h1>
                         <p className="text-gray-500 mt-2 font-medium">
                             지금까지 <span className="text-red-600 font-bold">{messages.length}</span>개의 마음을 받았어요!
@@ -105,7 +105,7 @@ export default function DashboardPage() {
                             onClick={copyLink}
                             className="flex-1 md:flex-none px-6 py-3 bg-white text-gray-700 border border-gray-200 rounded-xl font-bold hover:bg-gray-50 hover:border-gray-300 transition-all shadow-sm flex items-center justify-center gap-2"
                         >
-                            {copySuccess ? '✅ 복사 완료!' : '🔗 내 선물 상자 링크 복사'}
+                            {copySuccess ? '✅ 복사 완료!' : '🔗 내 선물함 링크 복사'}
                         </button>
                         <button
                             onClick={async () => {

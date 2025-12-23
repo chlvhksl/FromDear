@@ -34,7 +34,7 @@ export default function AuthPage() {
             </h1>
           </Link>
           <h2 className="text-xl font-bold text-gray-800 mt-4">
-            나만의 선물 상자 만들기 🎁
+            나만의 선물함 만들기 🎁
           </h2>
           <p className="text-gray-500 mt-2 text-sm">
             3초 만에 로그인하고<br />

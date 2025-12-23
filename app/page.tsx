@@ -33,7 +33,7 @@ export default function Home() {
               className="group relative px-10 py-5 bg-red-600 text-white font-bold rounded-full shadow-xl hover:shadow-2xl hover:bg-red-700 transition-all duration-300 text-xl overflow-hidden"
             >
               <span className="relative z-10 flex items-center gap-2">
-                내 선물 상자 만들기 🎁
+                내 선물함 만들기 🎁
               </span>
               <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
             </Link>
@@ -76,7 +76,7 @@ export default function Home() {
             {/* 카드 2 */}
             <div className="group bg-gray-50 rounded-3xl p-10 hover:bg-green-50 transition-colors duration-500 cursor-default">
               <div className="text-6xl mb-6 transform group-hover:scale-110 transition-transform duration-300">🎁</div>
-              <h3 className="text-2xl font-bold mb-4 text-gray-900">나만의 선물 상자</h3>
+              <h3 className="text-2xl font-bold mb-4 text-gray-900">나만의 선물함</h3>
               <p className="text-gray-600 leading-relaxed">
                 링크 하나만 공유하면 끝!<br />
                 친구들의 마음이 차곡차곡 쌓입니다.
