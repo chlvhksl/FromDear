@@ -16,20 +16,21 @@ export default function GiftBoxClient({ params }: { params: { link_id: string } 
             const { data: profile } = await supabase
                 .from('users')
                 .select('*')
-                .eq('link_id', params.link_id) // Query by link_id
+                .eq('link_id', params.link_id)
                 .single();
 
             if (profile) {
                 setUser(profile);
 
-                const { data: msgs } = await supabase
-                    .from('messages')
-                    .select('*')
-                    .eq('user_id', profile.id)
-                    .order('created_at', { ascending: false });
+                // Use RP to fetch public gift data securely
+                // This works for everyone (owner and guest)
+                const { data: msgs, error } = await supabase
+                    .rpc('get_public_gifts', { target_user_id: profile.id });
 
                 if (msgs) {
                     setMessages(msgs);
+                } else if (error) {
+                    console.error('Error fetching gifts:', error);
                 }
             }
             setLoading(false);
@@ -39,17 +40,36 @@ export default function GiftBoxClient({ params }: { params: { link_id: string } 
     }, [params.link_id]);
 
     const handleMessageClick = async (msg: any) => {
+        // Optimistically set selected message with available data first
         setSelectedMessage(msg);
 
-        // Mark as opened if not already
-        if (!msg.is_opened) {
-            await supabase
-                .from('messages')
-                .update({ is_opened: true })
-                .eq('id', msg.id);
+        // Try to fetch full content (including body)
+        // If RLS is set correctly, this will fail or return empty if not owner
+        const { data, error } = await supabase
+            .from('messages')
+            .select('content, is_opened')
+            .eq('id', msg.id)
+            .single();
 
-            // Update local state to reflect read status
-            setMessages(prev => prev.map(m => m.id === msg.id ? { ...m, is_opened: true } : m));
+        if (data && data.content) {
+            // Success! User is the owner
+            setSelectedMessage(prev => ({ ...prev, content: data.content }));
+
+            // Mark as opened if needed
+            if (!msg.is_opened) {
+                await supabase
+                    .from('messages')
+                    .update({ is_opened: true })
+                    .eq('id', msg.id);
+
+                // Update local state
+                setMessages(prev => prev.map(m => m.id === msg.id ? { ...m, is_opened: true } : m));
+            }
+        } else {
+            // Failed to get content -> User is a guest
+            // Keep selectedMessage but indicate it's private
+            // We use a special flag or just null content to separate logic in render
+            setSelectedMessage(prev => ({ ...prev, is_private: true }));
         }
     };
 
@@ -166,7 +186,7 @@ export default function GiftBoxClient({ params }: { params: { link_id: string } 
                             </p>
                         </div>
 
-                        {/* Emotion Analysis Result */}
+                        {/* Emotion Analysis Result - Show to everyone as a teaser */}
                         {selectedMessage.emotion_analysis && (
                             <div className="mx-auto mb-6 bg-white border-2 border-dashed border-gray-300 p-4 rounded-lg w-full max-w-xs relative rotate-1 shadow-sm">
                                 <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 bg-white px-2 text-xs font-bold text-gray-400 tracking-widest">
@@ -195,9 +215,21 @@ export default function GiftBoxClient({ params }: { params: { link_id: string } 
                             </div>
                         )}
 
-                        <div className="bg-gray-50 p-6 rounded-xl text-gray-700 leading-relaxed whitespace-pre-wrap max-h-[60vh] overflow-y-auto mb-6">
-                            {selectedMessage.content}
-                        </div>
+                        {/* Content Area */}
+                        {selectedMessage.is_private ? (
+                            <div className="bg-gray-50 p-10 rounded-xl text-center mb-6">
+                                <div className="text-4xl mb-3">🔒</div>
+                                <h4 className="font-bold text-gray-800 mb-2">비밀 선물이네요!</h4>
+                                <p className="text-gray-500 text-sm">
+                                    이 선물은 <strong>{user.username}</strong>님 본인만<br />
+                                    확인할 수 있어요.
+                                </p>
+                            </div>
+                        ) : (
+                            <div className="bg-gray-50 p-6 rounded-xl text-gray-700 leading-relaxed whitespace-pre-wrap max-h-[60vh] overflow-y-auto mb-6">
+                                {selectedMessage.content || '내용을 불러오는 중...'}
+                            </div>
+                        )}
 
                         <button
                             onClick={() => setSelectedMessage(null)}
