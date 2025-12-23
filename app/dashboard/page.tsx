@@ -90,7 +90,7 @@ export default function DashboardPage() {
                 ignoreElements: (node) => {
                     return node.textContent?.includes('내 선물함 공유하기') || false;
                 }
-            });
+            } as any);
 
             canvas.toBlob(async (blob) => {
                 if (!blob) {
