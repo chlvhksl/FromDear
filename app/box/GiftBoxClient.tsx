@@ -145,16 +145,13 @@ export default function GiftBoxClient({ params }: { params: { link_id: string } 
                                 <div
                                     key={msg.id}
                                     onClick={() => handleMessageClick(msg)}
-                                    className="aspect-square bg-white rounded-3xl p-3 md:p-6 shadow-lg relative overflow-hidden group cursor-pointer hover:-translate-y-2 hover:shadow-2xl transition-all duration-300 flex flex-col items-center justify-center"
+                                    className="aspect-square bg-white rounded-3xl p-3 pb-6 md:p-6 shadow-lg relative overflow-hidden group cursor-pointer hover:-translate-y-2 hover:shadow-2xl transition-all duration-300 flex flex-col items-center justify-center"
                                 >
-                                    <span className="text-4xl md:text-6xl mb-1 md:mb-4 transform group-hover:scale-110 transition-transform duration-300">
+                                    <span className="text-4xl md:text-6xl mb-2 md:mb-4 transform group-hover:scale-110 transition-transform duration-300">
                                         {msg.is_opened ? '🧸' : '🎁'}
                                     </span>
-                                    <span className="text-xs md:text-sm font-bold text-gray-500 bg-gray-100 px-2 py-0.5 md:px-3 md:py-1 rounded-full z-10 truncate max-w-full">
+                                    <span className="text-xs md:text-sm font-bold text-gray-500 bg-gray-100 px-2 py-0.5 md:px-3 md:py-1 rounded-full z-10 truncate max-w-[90%]">
                                         {msg.sender_name || '익명'}
-                                    </span>
-                                    <span className="text-[9px] md:text-xs text-gray-400 mt-1 md:mt-2 font-mono">
-                                        {new Date(msg.created_at).toLocaleDateString()}
                                     </span>
                                     {!msg.is_opened && (
                                         <div className="absolute top-4 right-4 w-2 h-2 md:w-3 md:h-3 bg-red-500 rounded-full animate-ping" />
