@@ -1,60 +1,37 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 
 export default function AuthCallbackPage() {
     const router = useRouter();
-    // Prevent double processing
-    const [processed, setProcessed] = useState(false);
-
     useEffect(() => {
-        if (processed) return;
-
-        const handleSession = async (session: any) => {
-            if (!session) return;
-            // Prevent multiple calls
-            setProcessed(true);
-
-            // Check if user has profile
-            const { data: profile } = await supabase
-                .from('users')
-                .select('*')
-                .eq('id', session.user.id)
-                .single();
-
-            if (profile) {
-                router.replace('/dashboard');
-            } else {
-                router.replace('/onboarding');
-            }
-        };
-
-        const initAuth = async () => {
-            // 1. Check immediately
-            const { data: { session } } = await supabase.auth.getSession();
-            if (session) {
-                await handleSession(session);
+        const handleAuth = async () => {
+            const { data: { session }, error } = await supabase.auth.getSession();
+            if (error) {
+                console.error('Auth Error:', error);
+                router.push('/auth?error=true');
                 return;
             }
+            if (session) {
+                // Check if user has profile
+                const { data: profile } = await supabase
+                    .from('users')
+                    .select('*')
+                    .eq('id', session.user.id)
+                    .single();
 
-            // 2. Listen for changes if no session yet
-            const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-                if (event === 'SIGNED_IN' && session) {
-                    await handleSession(session);
-                } else if (event === 'SIGNED_OUT') {
-                    router.replace('/auth');
+                if (profile) {
+                    router.push('/dashboard');
+                } else {
+                    router.push('/onboarding');
                 }
-            });
-
-            return () => {
-                subscription.unsubscribe();
-            };
+            }
         };
 
-        initAuth();
-    }, [router, processed]);
+        handleAuth();
+    }, [router]);
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-white">

@@ -1,25 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 
 export default function AuthPage() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{ type: 'error' | 'success', text: string } | null>(null);
-  const router = useRouter();
-
-  useEffect(() => {
-    // If user is already logged in, redirect to dashboard
-    const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        router.replace('/dashboard');
-      }
-    };
-    checkSession();
-  }, [router]);
 
   const handleSocialLogin = async (provider: 'kakao' | 'google') => {
     setLoading(true);
