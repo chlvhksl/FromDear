@@ -340,8 +340,11 @@ export default function DashboardPage() {
                                 이미지 저장/복사하기
                             </h3>
                             <p className="text-gray-500 text-sm text-center mb-4">
-                                자동 복사가 지원되지 않는 브라우저입니다.<br />
-                                <b>이미지를 꾹 눌러서 복사 또는 저장</b> 후<br />인스타그램에 올려주세요!
+                                <b>1. 이미지를 꾹 눌러서 저장/복사</b><br />
+                                <b>2. 인스타그램 스토리에 올리기</b><br />
+                                <span className="text-xs text-gray-400 font-normal">
+                                    (링크 스티커로 내 주소도 꼭 같이 올려주세요!)
+                                </span>
                             </p>
 
                             <div className="rounded-xl overflow-hidden border border-gray-200 shadow-inner bg-gray-50 mb-6">
