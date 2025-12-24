@@ -106,30 +106,51 @@ function MessageContent() {
         setLoading(true);
 
         try {
-            // 0. Check for Profanity (OpenAI Moderation)
+            // 0. Layer 1: Local Keyword Block (Fast & Basic)
+            const PROFANITY_LIST = [
+                '시발', '씨발', '병신', '개새끼', '존나', '졸라', '미친', '죽어', '꺼져', '닥쳐',
+                'fuck', 'shit', 'bitch', 'asshole', 'damn', 'sex', '섹스', '보지', '자지', '년', '놈',
+                '새끼', '지랄', '엠창', '느금마', '애미', '애비', '니기미', '창녀', '걸레', '따먹',
+                '변태', '호로', '육시랄', '염병', '쇳덩이', '대가리', '아가리', '주둥이',
+                'ㅅㅂ', 'ㅂㅅ', 'ㅈㄹ', 'ㄷㅊ', 'ㄲㅈ', 'ㅆㅂ', 'ㅈㄴ', 'ㅁㅊ', '스발', '시바',
+                '씨댕', '썅', '개씨', '븅신', '찐따', '찌질', '좆', '좇', '창년', '자살', '재기', '운지',
+                '꼬추', '젖', '씹', '18년', '18놈'
+            ];
+
+            // Check BOTH content and senderName
+            const hasProfanity = PROFANITY_LIST.some(word =>
+                content.includes(word) || (senderName && senderName.includes(word))
+            );
+
+            if (hasProfanity) {
+                alert('메시지 또는 이름에 부적절한 언어가 포함되어 있습니다. \n따뜻한 마음만 전해주세요! ❄️');
+                setLoading(false);
+                return;
+            }
+
+            // 0. Layer 2: OpenAI Moderation (Deep Check)
             try {
+                // Combine them to check at once
+                const combinedText = `${senderName || ''} ${content}`;
+
                 const moderationRes = await fetch('https://vlydnlmwwhofsksikaeh.supabase.co/functions/v1/moderate-content', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}`
                     },
-                    body: JSON.stringify({ message: content })
+                    body: JSON.stringify({ message: combinedText })
                 });
 
                 if (moderationRes.ok) {
                     const moderationData = await moderationRes.json();
                     if (moderationData.flagged) {
-                        alert('메시지에 부적절한 언어가 포함되어 있습니다. \n따뜻한 마음만 전해주세요! ❄️');
+                        alert('메시지에 부적절한 언어가 포함되어 있습니다. (AI 감지) \n따뜻한 마음만 전해주세요! ❄️');
                         setLoading(false);
                         return; // Stop submission
                     }
                 } else {
                     console.warn('Moderation check failed:', await moderationRes.text());
-                    // Option: Fail open? or Alert? 
-                    // Let's analyze locally just in case if moderation fails to ensure we don't block users due to API errors, 
-                    // BUT for safety, maybe just log it. 
-                    // For now, we proceed if check fails (Fail Open) to avoid bad UX if OpenAI is down.
                 }
             } catch (modError) {
                 console.error('Moderation Error:', modError);
