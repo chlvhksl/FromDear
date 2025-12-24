@@ -323,45 +323,44 @@ export default function DashboardPage() {
                             </div>
                         </div>
                     </div>
-                    </div>
                 )}
 
-            {/* Fallback Image Modal */}
-            {fallbackImage && (
-                <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" onClick={() => setFallbackImage(null)}>
-                    <div className="bg-white rounded-3xl w-full max-w-sm p-6 shadow-2xl relative" onClick={e => e.stopPropagation()}>
-                        <button
-                            onClick={() => setFallbackImage(null)}
-                            className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
-                        >
-                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
-                        </button>
+                {/* Fallback Image Modal */}
+                {fallbackImage && (
+                    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" onClick={() => setFallbackImage(null)}>
+                        <div className="bg-white rounded-3xl w-full max-w-sm p-6 shadow-2xl relative" onClick={e => e.stopPropagation()}>
+                            <button
+                                onClick={() => setFallbackImage(null)}
+                                className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
+                            >
+                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                            </button>
 
-                        <h3 className="text-xl font-bold text-gray-900 mb-4 text-center">
-                            이미지 저장/복사하기
-                        </h3>
-                        <p className="text-gray-500 text-sm text-center mb-4">
-                            자동 복사가 지원되지 않는 브라우저입니다.<br />
-                            <b>이미지를 꾹 눌러서 '복사' 또는 '저장'</b> 후<br />인스타그램에 올려주세요!
-                        </p>
+                            <h3 className="text-xl font-bold text-gray-900 mb-4 text-center">
+                                이미지 저장/복사하기
+                            </h3>
+                            <p className="text-gray-500 text-sm text-center mb-4">
+                                자동 복사가 지원되지 않는 브라우저입니다.<br />
+                                <b>이미지를 꾹 눌러서 '복사' 또는 '저장'</b> 후<br />인스타그램에 올려주세요!
+                            </p>
 
-                        <div className="rounded-xl overflow-hidden border border-gray-200 shadow-inner bg-gray-50 mb-6">
-                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img src={fallbackImage} alt="Sticker" className="w-full h-auto" />
+                            <div className="rounded-xl overflow-hidden border border-gray-200 shadow-inner bg-gray-50 mb-6">
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img src={fallbackImage} alt="Sticker" className="w-full h-auto" />
+                            </div>
+
+                            <button
+                                onClick={() => {
+                                    window.location.href = 'instagram://story-camera';
+                                }}
+                                className="w-full py-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold rounded-2xl shadow-lg flex items-center justify-center gap-2"
+                            >
+                                📸 인스타그램 열기
+                            </button>
                         </div>
-
-                        <button
-                            onClick={() => {
-                                window.location.href = 'instagram://story-camera';
-                            }}
-                            className="w-full py-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold rounded-2xl shadow-lg flex items-center justify-center gap-2"
-                        >
-                            📸 인스타그램 열기
-                        </button>
                     </div>
-                </div>
-            )}
-        </main >
+                )}
+            </main >
             <GuideModal isOpen={showGuide} onClose={() => setShowGuide(false)} />
         </>
     );
