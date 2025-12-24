@@ -6,6 +6,7 @@ import { supabase } from '@/lib/supabase';
 import html2canvas from 'html2canvas';
 import Link from 'next/link';
 import SnowEffect from '@/components/SnowEffect';
+import GuideModal from '@/components/GuideModal';
 
 export default function DashboardPage() {
     const router = useRouter();
@@ -14,6 +15,14 @@ export default function DashboardPage() {
     const [loading, setLoading] = useState(true);
     const [copySuccess, setCopySuccess] = useState('');
     const [selectedMessage, setSelectedMessage] = useState<any>(null);
+    const [showGuide, setShowGuide] = useState(false);
+
+    useEffect(() => {
+        const hasSeen = localStorage.getItem('has_seen_guide');
+        if (!hasSeen) {
+            setShowGuide(true);
+        }
+    }, []);
 
     useEffect(() => {
         const checkUser = async () => {
@@ -84,159 +93,170 @@ export default function DashboardPage() {
     }
 
     return (
-        <main className="min-h-screen bg-gradient-to-br from-red-50 via-white to-green-50 py-10 px-4 overflow-hidden relative">
-            <SnowEffect />
+        <>
+            <main className="min-h-screen bg-gradient-to-br from-red-50 via-white to-green-50 py-10 px-4 overflow-hidden relative">
+                <SnowEffect />
 
-            <div className="max-w-5xl mx-auto relative z-10">
-                <header className="flex flex-col md:flex-row justify-between items-center mb-10 gap-6">
-                    <div className="text-center md:text-left">
-                        <div className="inline-block px-3 py-1 bg-red-100 text-red-600 rounded-full text-xs font-bold mb-2">
-                            Happy Winter ❄️
-                        </div>
-                        <h1 className="text-3xl md:text-4xl font-black text-gray-900">
-                            {user?.username}님의 선물함 🎁
-                        </h1>
-                        <p className="text-gray-500 mt-2 font-medium">
-                            지금까지 <span className="text-red-600 font-bold">{messages.length}</span>개의 마음을 받았어요!
-                        </p>
-                    </div>
-
-                    <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
-                        <button
-                            onClick={copyLink}
-                            className="flex-1 md:flex-none px-6 py-3 bg-white text-gray-700 border border-gray-200 rounded-xl font-bold hover:bg-gray-50 hover:border-gray-300 transition-all shadow-sm flex items-center justify-center gap-2"
-                        >
-                            {copySuccess ? '✅ 복사 완료!' : '🔗 내 선물함 링크 복사'}
-                        </button>
-                        <button
-                            onClick={async () => {
-                                await supabase.auth.signOut();
-                                router.push('/');
-                            }}
-                            className="px-6 py-3 text-gray-500 hover:text-red-600 font-medium transition-colors"
-                        >
-                            로그아웃
-                        </button>
-                    </div>
-                </header>
-
-                <div className="bg-white/40 backdrop-blur-md rounded-[2.5rem] p-6 md:p-12 shadow-2xl border border-white/60 min-h-[500px]">
-                    {messages.length === 0 ? (
-                        <div className="h-full flex flex-col items-center justify-center text-center py-32">
-                            <div className="text-7xl mb-6 opacity-30 animate-bounce">🎁</div>
-                            <h3 className="text-2xl font-bold text-gray-700 mb-2">아직 도착한 선물이 없어요</h3>
-                            <p className="text-gray-500 mb-8">친구들에게 링크를 공유해보세요!</p>
-                            <button
-                                onClick={copyLink}
-                                className="px-8 py-4 bg-red-600 text-white font-bold rounded-2xl shadow-lg hover:bg-red-700 hover:-translate-y-1 transition-all"
-                            >
-                                링크 공유하고 선물 받기 📮
-                            </button>
-                        </div>
-                    ) : (
-                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                            {messages.map((msg, idx) => (
-                                <div
-                                    key={msg.id}
-                                    onClick={() => handleMessageClick(msg)}
-                                    className={`
-                                        aspect-square rounded-3xl p-4 md:p-6 shadow-lg relative overflow-hidden group cursor-pointer transition-all duration-300 flex flex-col items-center justify-center
-                                        ${msg.is_opened ? 'bg-white' : 'bg-red-50 border-2 border-red-100'}
-                                        hover:-translate-y-2 hover:shadow-2xl
-                                    `}
-                                >
-                                    <span className="text-6xl md:text-7xl mb-4 md:mb-5 transform group-hover:scale-110 transition-transform duration-300">
-                                        {msg.is_opened ? '🧸' : '🎁'}
-                                    </span>
-                                    <span className={`text-sm md:text-base font-bold px-3 py-1 rounded-full truncate max-w-[90%] ${msg.is_opened ? 'bg-gray-100 text-gray-500' : 'bg-red-100 text-red-600'}`}>
-                                        {msg.sender_name || '익명'}
-                                    </span>
-
-                                    {!msg.is_opened && (
-                                        <div className="absolute top-4 right-4 w-3 h-3 bg-red-600 rounded-full animate-ping" />
-                                    )}
-                                </div>
-                            ))}
-                        </div>
-                    )}
-                </div>
-
-                <div className="mt-10 text-center">
-                    <p className="text-gray-500 mb-4">
-                        친구들에게 링크를 공유하고 더 많은 메시지를 받아보세요!
-                    </p>
-                    <div className="inline-block bg-white px-4 py-2 rounded-lg border border-gray-200 text-gray-500 text-sm">
-                        {window.location.origin}/box?id={user?.link_id}
-                    </div>
-                </div>
-            </div>
-
-            {/* Message Detail Modal */}
-            {selectedMessage && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={() => setSelectedMessage(null)}>
-                    <div className="bg-white rounded-3xl w-full max-w-lg p-8 shadow-2xl transform transition-all scale-100 relative translate-y-0" onClick={e => e.stopPropagation()}>
-                        <button
-                            onClick={() => setSelectedMessage(null)}
-                            className="absolute top-6 right-6 text-gray-300 hover:text-gray-500 transition-colors"
-                        >
-                            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
-                        </button>
-
-                        <div className="text-center mb-8 pt-4">
-                            <div className="text-5xl mb-6">🎄</div>
-                            <h3 className="text-2xl font-bold text-gray-900 leading-tight">
-                                <span className="text-red-600">{selectedMessage.sender_name || '익명'}</span>님이 보낸<br />
-                                마음의 선물입니다
-                            </h3>
-                            <p className="text-gray-400 text-sm mt-3 font-medium">
-                                {new Date(selectedMessage.created_at).toLocaleString()}
+                <div className="max-w-5xl mx-auto relative z-10">
+                    <header className="flex flex-col md:flex-row justify-between items-center mb-10 gap-6">
+                        <div className="text-center md:text-left">
+                            <div className="inline-block px-3 py-1 bg-red-100 text-red-600 rounded-full text-xs font-bold mb-2">
+                                Happy Winter ❄️
+                            </div>
+                            <h1 className="text-3xl md:text-4xl font-black text-gray-900">
+                                {user?.username}님의 선물함 🎁
+                            </h1>
+                            <p className="text-gray-500 mt-2 font-medium">
+                                지금까지 <span className="text-red-600 font-bold">{messages.length}</span>개의 마음을 받았어요!
                             </p>
                         </div>
 
-                        {/* Emotion Analysis Result */}
-                        {selectedMessage.emotion_analysis && (
-                            <div className="mx-auto mb-6 bg-white border-2 border-dashed border-gray-300 p-4 rounded-lg w-full max-w-xs relative rotate-1 shadow-sm">
-                                <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 bg-white px-2 text-xs font-bold text-gray-400 tracking-widest">
-                                    INGREDIENTS
-                                </div>
-                                <h4 className="text-center font-bold text-gray-700 mb-3 border-b pb-2 text-sm">
-                                    선물 성분표 🧾
-                                </h4>
-                                <div className="space-y-2">
-                                    {Object.entries(selectedMessage.emotion_analysis).map(([emotion, percent]: [string, any]) => (
-                                        <div key={emotion} className="flex items-center justify-between text-sm">
-                                            <span className="font-medium text-gray-600">{emotion}</span>
-                                            <div className="flex-1 mx-3 h-2 bg-gray-100 rounded-full overflow-hidden">
-                                                <div
-                                                    className="h-full bg-red-400 rounded-full"
-                                                    style={{ width: `${percent}%` }}
-                                                />
-                                            </div>
-                                            <span className="font-mono font-bold text-gray-800">{percent}%</span>
-                                        </div>
-                                    ))}
-                                </div>
-                                <div className="mt-3 pt-2 border-t border-dashed border-gray-300 text-center text-xs text-gray-400 font-mono">
-                                    100% SINCERITY INCLUDED
+                        <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+                            <button
+                                onClick={copyLink}
+                                className="flex-1 md:flex-none px-6 py-3 bg-white text-gray-700 border border-gray-200 rounded-xl font-bold hover:bg-gray-50 hover:border-gray-300 transition-all shadow-sm flex items-center justify-center gap-2"
+                            >
+                                {copySuccess ? '✅ 복사 완료!' : '🔗 내 선물함 링크 복사'}
+                            </button>
+                            <button
+                                onClick={async () => {
+                                    await supabase.auth.signOut();
+                                    router.push('/');
+                                }}
+                                className="px-6 py-3 text-gray-500 hover:text-red-600 font-medium transition-colors"
+                            >
+                                로그아웃
+                            </button>
+                        </div>
+                    </header>
+
+                    <div className="bg-white/40 backdrop-blur-md rounded-[2.5rem] p-6 md:p-12 shadow-2xl border border-white/60 min-h-[500px]">
+                        {messages.length === 0 ? (
+                            <div className="h-full flex flex-col items-center justify-center text-center py-32">
+                                <div className="text-7xl mb-6 opacity-30 animate-bounce">🎁</div>
+                                <h3 className="text-2xl font-bold text-gray-700 mb-2">아직 도착한 선물이 없어요</h3>
+                                <p className="text-gray-500 mb-8">친구들에게 링크를 공유해보세요!</p>
+                                <div className="flex flex-col gap-3 w-full max-w-sm">
+                                    <button
+                                        onClick={copyLink}
+                                        className="px-8 py-4 bg-red-600 text-white font-bold rounded-2xl shadow-lg hover:bg-red-700 hover:-translate-y-1 transition-all"
+                                    >
+                                        링크 공유하고 선물 받기 📮
+                                    </button>
+                                    <button
+                                        onClick={() => setShowGuide(true)}
+                                        className="px-8 py-3 bg-white text-gray-600 font-bold rounded-2xl border border-gray-200 hover:bg-gray-50 transition-all text-sm"
+                                    >
+                                        ❓ 어떻게 하는 건가요?
+                                    </button>
                                 </div>
                             </div>
+                        ) : (
+                            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                                {messages.map((msg, idx) => (
+                                    <div
+                                        key={msg.id}
+                                        onClick={() => handleMessageClick(msg)}
+                                        className={`
+                                            aspect-square rounded-3xl p-4 md:p-6 shadow-lg relative overflow-hidden group cursor-pointer transition-all duration-300 flex flex-col items-center justify-center
+                                            ${msg.is_opened ? 'bg-white' : 'bg-red-50 border-2 border-red-100'}
+                                            hover:-translate-y-2 hover:shadow-2xl
+                                        `}
+                                    >
+                                        <span className="text-6xl md:text-7xl mb-4 md:mb-5 transform group-hover:scale-110 transition-transform duration-300">
+                                            {msg.is_opened ? '🧸' : '🎁'}
+                                        </span>
+                                        <span className={`text-sm md:text-base font-bold px-3 py-1 rounded-full truncate max-w-[90%] ${msg.is_opened ? 'bg-gray-100 text-gray-500' : 'bg-red-100 text-red-600'}`}>
+                                            {msg.sender_name || '익명'}
+                                        </span>
+
+                                        {!msg.is_opened && (
+                                            <div className="absolute top-4 right-4 w-3 h-3 bg-red-600 rounded-full animate-ping" />
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
                         )}
+                    </div>
 
-                        <div className="bg-[#FFFDF5] p-8 rounded-2xl text-gray-700 leading-relaxed whitespace-pre-wrap max-h-[50vh] overflow-y-auto mb-8 text-lg border border-red-50 shadow-inner">
-                            {selectedMessage.content}
-                        </div>
-
-                        <div className="flex gap-3">
-                            <button
-                                onClick={() => setSelectedMessage(null)}
-                                className="flex-1 py-4 bg-gray-100 text-gray-700 font-bold rounded-2xl hover:bg-gray-200 transition-colors"
-                            >
-                                닫기
-                            </button>
+                    <div className="mt-10 text-center">
+                        <p className="text-gray-500 mb-4">
+                            친구들에게 링크를 공유하고 더 많은 메시지를 받아보세요!
+                        </p>
+                        <div className="inline-block bg-white px-4 py-2 rounded-lg border border-gray-200 text-gray-500 text-sm">
+                            {window.location.origin}/box?id={user?.link_id}
                         </div>
                     </div>
                 </div>
-            )}
-        </main>
+
+                {/* Message Detail Modal */}
+                {selectedMessage && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={() => setSelectedMessage(null)}>
+                        <div className="bg-white rounded-3xl w-full max-w-lg p-8 shadow-2xl transform transition-all scale-100 relative translate-y-0" onClick={e => e.stopPropagation()}>
+                            <button
+                                onClick={() => setSelectedMessage(null)}
+                                className="absolute top-6 right-6 text-gray-300 hover:text-gray-500 transition-colors"
+                            >
+                                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                            </button>
+
+                            <div className="text-center mb-8 pt-4">
+                                <div className="text-5xl mb-6">🎄</div>
+                                <h3 className="text-2xl font-bold text-gray-900 leading-tight">
+                                    <span className="text-red-600">{selectedMessage.sender_name || '익명'}</span>님이 보낸<br />
+                                    마음의 선물입니다
+                                </h3>
+                                <p className="text-gray-400 text-sm mt-3 font-medium">
+                                    {new Date(selectedMessage.created_at).toLocaleString()}
+                                </p>
+                            </div>
+
+                            {/* Emotion Analysis Result */}
+                            {selectedMessage.emotion_analysis && (
+                                <div className="mx-auto mb-6 bg-white border-2 border-dashed border-gray-300 p-4 rounded-lg w-full max-w-xs relative rotate-1 shadow-sm">
+                                    <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 bg-white px-2 text-xs font-bold text-gray-400 tracking-widest">
+                                        INGREDIENTS
+                                    </div>
+                                    <h4 className="text-center font-bold text-gray-700 mb-3 border-b pb-2 text-sm">
+                                        선물 성분표 🧾
+                                    </h4>
+                                    <div className="space-y-2">
+                                        {Object.entries(selectedMessage.emotion_analysis).map(([emotion, percent]: [string, any]) => (
+                                            <div key={emotion} className="flex items-center justify-between text-sm">
+                                                <span className="font-medium text-gray-600">{emotion}</span>
+                                                <div className="flex-1 mx-3 h-2 bg-gray-100 rounded-full overflow-hidden">
+                                                    <div
+                                                        className="h-full bg-red-400 rounded-full"
+                                                        style={{ width: `${percent}%` }}
+                                                    />
+                                                </div>
+                                                <span className="font-mono font-bold text-gray-800">{percent}%</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <div className="mt-3 pt-2 border-t border-dashed border-gray-300 text-center text-xs text-gray-400 font-mono">
+                                        100% SINCERITY INCLUDED
+                                    </div>
+                                </div>
+                            )}
+
+                            <div className="bg-[#FFFDF5] p-8 rounded-2xl text-gray-700 leading-relaxed whitespace-pre-wrap max-h-[50vh] overflow-y-auto mb-8 text-lg border border-red-50 shadow-inner">
+                                {selectedMessage.content}
+                            </div>
+
+                            <div className="flex gap-3">
+                                <button
+                                    onClick={() => setSelectedMessage(null)}
+                                    className="flex-1 py-4 bg-gray-100 text-gray-700 font-bold rounded-2xl hover:bg-gray-200 transition-colors"
+                                >
+                                    닫기
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </main>
+            <GuideModal isOpen={showGuide} onClose={() => setShowGuide(false)} />
+        </>
     );
 }

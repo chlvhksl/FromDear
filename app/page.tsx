@@ -1,7 +1,20 @@
+'use client';
+
 import Link from 'next/link';
 import SnowEffect from '@/components/SnowEffect';
+import GuideModal from '@/components/GuideModal';
+import { useState, useEffect } from 'react';
 
 export default function Home() {
+  const [showGuide, setShowGuide] = useState(false);
+
+  useEffect(() => {
+    const hasSeen = localStorage.getItem('has_seen_guide');
+    if (!hasSeen) {
+      setShowGuide(true);
+    }
+  }, []);
+
   return (
     <main className="min-h-screen relative overflow-hidden bg-[#FFFDF5]">
       <SnowEffect />
@@ -14,9 +27,12 @@ export default function Home() {
         <div className="max-w-5xl mx-auto text-center">
           {/* 메인 타이틀 */}
           <div className="mb-12 animate-float">
-            <div className="inline-block px-4 py-1 rounded-full bg-green-100 text-green-700 font-bold text-sm mb-6 border border-green-200 shadow-sm">
+            <button
+              onClick={() => setShowGuide(true)}
+              className="inline-block px-4 py-1 rounded-full bg-green-100 text-green-700 font-bold text-sm mb-6 border border-green-200 shadow-sm hover:bg-green-200 transition-colors cursor-pointer"
+            >
               ❄️ 추운 겨울, 전하는 따뜻한 마음
-            </div>
+            </button>
             <h1 className="text-7xl md:text-9xl font-black mb-6 text-transparent bg-clip-text bg-gradient-to-r from-red-600 via-green-600 to-red-600 drop-shadow-sm tracking-tight">
               FromDear
             </h1>
@@ -100,6 +116,7 @@ export default function Home() {
       <footer className="bg-gray-900 text-gray-400 py-12 px-4 text-center relative z-10">
         <p className="font-medium">© 2025 FromDear. Created by 795space</p>
       </footer>
+      <GuideModal isOpen={showGuide} onClose={() => setShowGuide(false)} />
     </main>
   );
 }
