@@ -106,6 +106,35 @@ function MessageContent() {
         setLoading(true);
 
         try {
+            // 0. Check for Profanity (OpenAI Moderation)
+            try {
+                const moderationRes = await fetch('https://vlydnlmwwhofsksikaeh.supabase.co/functions/v1/moderate-content', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}`
+                    },
+                    body: JSON.stringify({ message: content })
+                });
+
+                if (moderationRes.ok) {
+                    const moderationData = await moderationRes.json();
+                    if (moderationData.flagged) {
+                        alert('메시지에 부적절한 언어가 포함되어 있습니다. \n따뜻한 마음만 전해주세요! ❄️');
+                        setLoading(false);
+                        return; // Stop submission
+                    }
+                } else {
+                    console.warn('Moderation check failed:', await moderationRes.text());
+                    // Option: Fail open? or Alert? 
+                    // Let's analyze locally just in case if moderation fails to ensure we don't block users due to API errors, 
+                    // BUT for safety, maybe just log it. 
+                    // For now, we proceed if check fails (Fail Open) to avoid bad UX if OpenAI is down.
+                }
+            } catch (modError) {
+                console.error('Moderation Error:', modError);
+            }
+
             // 1. Analyze Emotion via AI (Try API -> Fallback to Local)
             let emotionAnalysis = null;
             try {
