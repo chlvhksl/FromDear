@@ -306,7 +306,7 @@ export default function DashboardPage() {
 
                                         {/* Reply Indicator */}
                                         {msg.reply_content && (
-                                            <div className="absolute bottom-3 right-3 text-lg">💬</div>
+                                            <div className="absolute top-3 right-6 text-lg drop-shadow-sm">💬</div>
                                         )}
                                     </div>
                                 ))}
