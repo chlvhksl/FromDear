@@ -1,0 +1,58 @@
+name: Deploy to GitHub Pages
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+
+      - name: Deploy to Public Repository
+        env:
+          API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
+          TARGET_REPO: 'FromDear/FromDear.github.io'
+          TARGET_BRANCH: 'gh-pages'
+        run: |
+          echo "Cloning destination repository..."
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+          
+          # Clone the target repository to a temporary directory
+          git clone --depth 1 --branch $TARGET_BRANCH https://x-access-token:$API_TOKEN_GITHUB@github.com/$TARGET_REPO.git deployment_repo
+          
+          echo "Clearing old content..."
+          cd deployment_repo
+          # Remove all files except .git
+          find . -maxdepth 1 ! -name '.git' ! -name '.' ! -name '..' -exec rm -rf {} +
+          
+          echo "Copying new build..."
+          # Copy build artifacts from parent 'out' directory
+          cp -R ../out/. .
+          
+          echo "Pushing changes..."
+          git add .
+          
+          # Only commit if there are changes
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Deploy: Update from source"
+            git push origin $TARGET_BRANCH
+          fi 
