@@ -26,25 +26,27 @@ const ShareSticker = forwardRef<HTMLDivElement, ShareStickerProps>(({ username }
                 }}
             ></div>
 
-            <div className="relative z-10 bg-white/60 backdrop-blur-md p-8 rounded-3xl border border-white shadow-sm mb-12 transform -rotate-2 mt-10">
-                <span className="text-8xl mb-4 block filter drop-shadow-md">🎁</span>
-            </div>
-
-            <div className="relative z-10 space-y-2">
-                <div className="inline-block px-4 py-1 bg-red-100 text-red-600 rounded-full text-lg font-bold mb-2">
-                    Happy Winter ❄️
+            <div className="flex-1 flex flex-col items-center justify-center w-full">
+                <div className="relative z-10 bg-white/60 backdrop-blur-md p-8 rounded-3xl border border-white shadow-sm mb-10 transform -rotate-2">
+                    <span className="text-8xl mb-2 block filter drop-shadow-md">🎁</span>
                 </div>
-                <h2 className="text-4xl font-black text-gray-900 leading-tight">
-                    <span className="text-green-600">{username}</span>님의<br />
-                    선물함입니다
-                </h2>
-                <p className="text-gray-500 text-xl font-medium mt-4">
-                    익명으로 마음을 전해주세요!
-                </p>
+
+                <div className="relative z-10 space-y-4">
+                    <div className="inline-block px-6 py-2 bg-red-100 text-red-600 rounded-full text-xl font-bold mb-2 shadow-sm">
+                        Happy Winter ❄️
+                    </div>
+                    <h2 className="text-5xl font-black text-gray-900 leading-tight tracking-tight">
+                        <span className="text-green-600">{username}</span>님의<br />
+                        선물함입니다
+                    </h2>
+                    <p className="text-gray-500 text-xl font-medium mt-4">
+                        익명으로 마음을 전해주세요!
+                    </p>
+                </div>
             </div>
 
-            <div className="mt-12 relative z-10 bg-white px-6 py-3 rounded-xl shadow-md border border-gray-100 transform rotate-2">
-                <p className="text-gray-400 font-mono text-sm">
+            <div className="relative z-10 bg-white px-8 py-3 rounded-2xl shadow-md border border-gray-100 transform rotate-2 mb-8">
+                <p className="text-gray-400 font-mono text-base font-bold tracking-widest">
                     FromDear 💌
                 </p>
             </div>
