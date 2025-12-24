@@ -26,7 +26,7 @@ const ShareSticker = forwardRef<HTMLDivElement, ShareStickerProps>(({ username }
                 }}
             ></div>
 
-            <div className="relative z-10 bg-white/60 backdrop-blur-md p-8 rounded-3xl border border-white shadow-sm mb-8 transform -rotate-2">
+            <div className="relative z-10 bg-white/60 backdrop-blur-md p-8 rounded-3xl border border-white shadow-sm mb-12 transform -rotate-2 mt-10">
                 <span className="text-8xl mb-4 block filter drop-shadow-md">🎁</span>
             </div>
 
