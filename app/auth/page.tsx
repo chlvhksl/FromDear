@@ -11,10 +11,15 @@ export default function AuthPage() {
   const handleSocialLogin = async (provider: 'kakao' | 'google') => {
     setLoading(true);
     try {
+      // Check if we are on a path that needs a base path (like GitHub Pages) 
+      const baseUrl = window.location.href.includes('/FromDear')
+        ? `${window.location.origin}/FromDear`
+        : window.location.origin;
+
       const { error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo: `${baseUrl}/auth/callback`,
         },
       });
       if (error) throw error;
