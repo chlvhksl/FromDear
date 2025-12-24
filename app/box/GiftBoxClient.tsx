@@ -171,7 +171,7 @@ export default function GiftBoxClient({ params }: { params: { link_id: string } 
             {/* Message Reading Modal */}
             {selectedMessage && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={() => setSelectedMessage(null)}>
-                    <div className="bg-white rounded-2xl w-full max-w-lg p-8 shadow-2xl transform transition-all scale-100 relative" onClick={e => e.stopPropagation()}>
+                    <div className="bg-white rounded-2xl w-full max-w-lg p-8 shadow-2xl transform transition-all scale-100 relative max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
                         <button
                             onClick={() => setSelectedMessage(null)}
                             className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
