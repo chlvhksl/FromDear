@@ -20,6 +20,7 @@ export default function DashboardPage() {
     const [showGuide, setShowGuide] = useState(false);
     const stickerRef = useRef<HTMLDivElement>(null);
     const [sharing, setSharing] = useState(false);
+    const [fallbackImage, setFallbackImage] = useState<string | null>(null);
 
     useEffect(() => {
         const hasSeen = localStorage.getItem('has_seen_guide');
@@ -78,45 +79,50 @@ export default function DashboardPage() {
     const handleShareToStory = async () => {
         if (!stickerRef.current || sharing) return;
         setSharing(true);
+        setFallbackImage(null);
 
         try {
             // 1. Capture the sticker
             const canvas = await html2canvas(stickerRef.current, {
-                scale: 2, // High resolution
+                scale: 2,
                 backgroundColor: null,
                 logging: false,
-                useCORS: true
+                useCORS: true,
+                allowTaint: true,
             } as any);
 
             // 2. Convert to Blob
             canvas.toBlob(async (blob) => {
                 if (!blob) {
-                    alert('이미지 생성에 실패했습니다 😢');
+                    alert('이미지 생성 실패: Blob is null');
+                    setSharing(false);
                     return;
                 }
 
                 try {
-                    // 3. Copy to Clipboard
-                    await navigator.clipboard.write([
-                        new ClipboardItem({
-                            'image/png': blob
-                        })
-                    ]);
+                    // 3. Try Auto Copy
+                    // iOS Safari requires ClipboardItem to be created directly
+                    const item = new ClipboardItem({ 'image/png': blob });
+                    await navigator.clipboard.write([item]);
 
-                    // 4. Show success & Open Instagram
-                    if (confirm('✅ 이미지가 복사되었습니다!\n\n인스타그램을 열어 스토리에 붙여넣기 하시겠습니까?\n(스토리 작성 화면에서 "텍스트" -> "붙여넣기"를 해주세요)')) {
+                    // 4. Success -> Open Instagram
+                    if (confirm('✅ 이미지가 복사되었습니다!\n\n인스타그램을 열어 붙여넣기 하시겠습니까?')) {
                         window.location.href = 'instagram://story-camera';
                     }
-                } catch (err) {
+                    setSharing(false);
+                } catch (err: any) {
                     console.error('Clipboard failed:', err);
-                    alert('이미지 복사에 실패했습니다. 브라우저 설정을 확인해주세요.');
-                } finally {
+                    // 5. Fallback: Show Image Modal
+                    const url = URL.createObjectURL(blob);
+                    setFallbackImage(url);
+                    // Error is expected on some mobile browsers, so we just show fallback
                     setSharing(false);
                 }
             }, 'image/png');
 
-        } catch (error) {
+        } catch (error: any) {
             console.error('Share failed:', error);
+            alert(`오류가 발생했습니다: ${error.message}`);
             setSharing(false);
         }
     };
@@ -317,8 +323,45 @@ export default function DashboardPage() {
                             </div>
                         </div>
                     </div>
+                    </div>
                 )}
-            </main>
+
+            {/* Fallback Image Modal */}
+            {fallbackImage && (
+                <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" onClick={() => setFallbackImage(null)}>
+                    <div className="bg-white rounded-3xl w-full max-w-sm p-6 shadow-2xl relative" onClick={e => e.stopPropagation()}>
+                        <button
+                            onClick={() => setFallbackImage(null)}
+                            className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
+                        >
+                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                        </button>
+
+                        <h3 className="text-xl font-bold text-gray-900 mb-4 text-center">
+                            이미지 저장/복사하기
+                        </h3>
+                        <p className="text-gray-500 text-sm text-center mb-4">
+                            자동 복사가 지원되지 않는 브라우저입니다.<br />
+                            <b>이미지를 꾹 눌러서 '복사' 또는 '저장'</b> 후<br />인스타그램에 올려주세요!
+                        </p>
+
+                        <div className="rounded-xl overflow-hidden border border-gray-200 shadow-inner bg-gray-50 mb-6">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img src={fallbackImage} alt="Sticker" className="w-full h-auto" />
+                        </div>
+
+                        <button
+                            onClick={() => {
+                                window.location.href = 'instagram://story-camera';
+                            }}
+                            className="w-full py-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold rounded-2xl shadow-lg flex items-center justify-center gap-2"
+                        >
+                            📸 인스타그램 열기
+                        </button>
+                    </div>
+                </div>
+            )}
+        </main >
             <GuideModal isOpen={showGuide} onClose={() => setShowGuide(false)} />
         </>
     );

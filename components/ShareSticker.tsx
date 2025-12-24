@@ -17,7 +17,14 @@ const ShareSticker = forwardRef<HTMLDivElement, ShareStickerProps>(({ username }
                 boxShadow: '0 20px 60px -10px rgba(0,0,0,0.1)'
             }}
         >
-            <div className="absolute top-0 left-0 w-full h-full bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 pointer-events-none mix-blend-multiply"></div>
+            {/* CSS Pattern instead of external image */}
+            <div
+                className="absolute top-0 left-0 w-full h-full opacity-30 pointer-events-none mix-blend-multiply"
+                style={{
+                    backgroundImage: 'radial-gradient(#000 1px, transparent 1px)',
+                    backgroundSize: '20px 20px'
+                }}
+            ></div>
 
             <div className="relative z-10 bg-white/60 backdrop-blur-md p-8 rounded-3xl border border-white shadow-sm mb-8 transform -rotate-2">
                 <span className="text-8xl mb-4 block filter drop-shadow-md">🎁</span>
