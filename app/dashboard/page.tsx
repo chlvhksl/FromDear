@@ -341,7 +341,7 @@ export default function DashboardPage() {
                             </h3>
                             <p className="text-gray-500 text-sm text-center mb-4">
                                 자동 복사가 지원되지 않는 브라우저입니다.<br />
-                                <b>이미지를 꾹 눌러서 '복사' 또는 '저장'</b> 후<br />인스타그램에 올려주세요!
+                                <b>이미지를 꾹 눌러서 복사 또는 저장</b> 후<br />인스타그램에 올려주세요!
                             </p>
 
                             <div className="rounded-xl overflow-hidden border border-gray-200 shadow-inner bg-gray-50 mb-6">
