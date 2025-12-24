@@ -7,6 +7,8 @@ import html2canvas from 'html2canvas';
 import Link from 'next/link';
 import SnowEffect from '@/components/SnowEffect';
 import GuideModal from '@/components/GuideModal';
+import ShareSticker from '@/components/ShareSticker';
+import { useRef } from 'react';
 
 export default function DashboardPage() {
     const router = useRouter();
@@ -16,6 +18,8 @@ export default function DashboardPage() {
     const [copySuccess, setCopySuccess] = useState('');
     const [selectedMessage, setSelectedMessage] = useState<any>(null);
     const [showGuide, setShowGuide] = useState(false);
+    const stickerRef = useRef<HTMLDivElement>(null);
+    const [sharing, setSharing] = useState(false);
 
     useEffect(() => {
         const hasSeen = localStorage.getItem('has_seen_guide');
@@ -69,6 +73,52 @@ export default function DashboardPage() {
         navigator.clipboard.writeText(url);
         setCopySuccess('링크가 복사되었습니다!');
         setTimeout(() => setCopySuccess(''), 2000);
+    };
+
+    const handleShareToStory = async () => {
+        if (!stickerRef.current || sharing) return;
+        setSharing(true);
+
+        try {
+            // 1. Capture the sticker
+            const canvas = await html2canvas(stickerRef.current, {
+                scale: 2, // High resolution
+                backgroundColor: null,
+                logging: false,
+                useCORS: true
+            } as any);
+
+            // 2. Convert to Blob
+            canvas.toBlob(async (blob) => {
+                if (!blob) {
+                    alert('이미지 생성에 실패했습니다 😢');
+                    return;
+                }
+
+                try {
+                    // 3. Copy to Clipboard
+                    await navigator.clipboard.write([
+                        new ClipboardItem({
+                            'image/png': blob
+                        })
+                    ]);
+
+                    // 4. Show success & Open Instagram
+                    if (confirm('✅ 이미지가 복사되었습니다!\n\n인스타그램을 열어 스토리에 붙여넣기 하시겠습니까?\n(스토리 작성 화면에서 "텍스트" -> "붙여넣기"를 해주세요)')) {
+                        window.location.href = 'instagram://story-camera';
+                    }
+                } catch (err) {
+                    console.error('Clipboard failed:', err);
+                    alert('이미지 복사에 실패했습니다. 브라우저 설정을 확인해주세요.');
+                } finally {
+                    setSharing(false);
+                }
+            }, 'image/png');
+
+        } catch (error) {
+            console.error('Share failed:', error);
+            setSharing(false);
+        }
     };
 
     const handleMessageClick = async (msg: any) => {
@@ -129,6 +179,19 @@ export default function DashboardPage() {
                             </button>
                         </div>
                     </header>
+
+                    {/* Hidden Share Sticker */}
+                    <ShareSticker ref={stickerRef} username={user?.username || ''} />
+
+                    {/* Share Actions - More prominent now */}
+                    <div className="mb-10 flex flex-col sm:flex-row gap-3 justify-center md:justify-start">
+                        <button
+                            onClick={handleShareToStory}
+                            className="px-6 py-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold rounded-2xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all flex items-center justify-center gap-2"
+                        >
+                            {sharing ? '생성 중... 🎨' : '📸 인스타 스토리에 공유하기'}
+                        </button>
+                    </div>
 
                     <div className="bg-white/40 backdrop-blur-md rounded-[2.5rem] p-6 md:p-12 shadow-2xl border border-white/60 min-h-[500px]">
                         {messages.length === 0 ? (
