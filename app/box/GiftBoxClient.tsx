@@ -43,37 +43,31 @@ export default function GiftBoxClient({ params }: { params: { link_id: string } 
         // Optimistically set selected message with available data first
         setSelectedMessage(msg);
 
-        // Try to fetch full content (including body)
-        // If RLS is set correctly, this will fail or return empty if not owner
+        // Try to fetch full content (including body & reply)
         const { data, error } = await supabase
             .from('messages')
-            .select('content, is_opened, emotion_analysis')
+            .select('content, is_opened, emotion_analysis, reply_content, is_private_reply')
             .eq('id', msg.id)
             .single();
 
-        if (data && data.content) {
-            // Success! User is the owner
+        if (data) {
+            // If data is returned, RLS allowed it (Owner OR Public Reply)
             setSelectedMessage((prev: any) => ({
                 ...prev,
                 content: data.content,
-                emotion_analysis: data.emotion_analysis
+                emotion_analysis: data.emotion_analysis,
+                reply_content: data.reply_content,
+                is_private_reply: data.is_private_reply,
+                is_private: false // It's visible!
             }));
 
-            // Mark as opened if needed
-            if (!msg.is_opened) {
-                await supabase
-                    .from('messages')
-                    .update({ is_opened: true })
-                    .eq('id', msg.id);
-
-                // Update local state
-                setMessages((prev: any[]) => prev.map(m => m.id === msg.id ? { ...m, is_opened: true } : m));
-            }
+            // Mark as opened if needed (only relevant if owner viewing, but guests trigger this safe-fail usually)
+            // Actually, we shouldn't update 'is_opened' here as guest.
+            // But usually this client is for guests.
         } else {
-            // Failed to get content -> User is a guest
+            // Failed to get content -> Private Message without Public Reply
             // Keep selectedMessage but indicate it's private
-            // We use a special flag or just null content to separate logic in render
-            setSelectedMessage((prev: any) => ({ ...prev, is_private: true }));
+            setSelectedMessage((prev: any) => ({ ...prev, is_private: true, content: null }));
         }
     };
 
@@ -156,6 +150,11 @@ export default function GiftBoxClient({ params }: { params: { link_id: string } 
                                     {!msg.is_opened && (
                                         <div className="absolute top-4 right-4 w-3 h-3 bg-red-500 rounded-full animate-ping" />
                                     )}
+
+                                    {/* Reply Indicator */}
+                                    {msg.reply_content && (
+                                        <div className="absolute bottom-3 right-3 text-lg">💬</div>
+                                    )}
                                 </div>
                             ))}
                         </div>
@@ -220,24 +219,40 @@ export default function GiftBoxClient({ params }: { params: { link_id: string } 
                         )}
 
                         {/* Content Area */}
-                        {selectedMessage.is_private ? (
+                        {selectedMessage.is_private && !selectedMessage.content ? (
                             <div className="bg-gray-50 p-10 rounded-xl text-center mb-6">
                                 <div className="text-4xl mb-3">🔒</div>
                                 <h4 className="font-bold text-gray-800 mb-2">비밀 선물이네요!</h4>
                                 <p className="text-gray-500 text-sm">
-                                    이 선물은 <strong>{user.username}</strong>님 본인만<br />
+                                    이 선물은 <strong>{user.username}</strong>님만<br />
                                     확인할 수 있어요.
                                 </p>
                             </div>
                         ) : (
-                            <div className="bg-gray-50 p-6 rounded-xl text-gray-700 leading-relaxed whitespace-pre-wrap max-h-[60vh] overflow-y-auto mb-6">
+                            <div className="bg-[#FFFDF5] p-6 rounded-xl text-gray-700 leading-relaxed whitespace-pre-wrap max-h-[60vh] overflow-y-auto mb-6 border border-red-50 shadow-inner">
                                 {selectedMessage.content || '내용을 불러오는 중...'}
+                            </div>
+                        )}
+
+                        {/* Reply Display */}
+                        {selectedMessage.reply_content && (
+                            <div className="bg-gray-800 text-white p-6 rounded-xl relative mt-4 shadow-lg">
+                                <div className="absolute -top-3 left-6 w-6 h-6 bg-gray-800 transform rotate-45"></div>
+                                <div className="relative z-10 flex gap-3">
+                                    <div className="text-3xl">💌</div>
+                                    <div>
+                                        <h4 className="font-bold text-gray-200 text-sm mb-1">From. {user.username}</h4>
+                                        <p className="whitespace-pre-wrap leading-relaxed text-gray-100">
+                                            {selectedMessage.reply_content}
+                                        </p>
+                                    </div>
+                                </div>
                             </div>
                         )}
 
                         <button
                             onClick={() => setSelectedMessage(null)}
-                            className="w-full py-3 bg-red-600 text-white font-bold rounded-xl hover:bg-red-700 transition-colors"
+                            className="w-full py-4 bg-white border-2 border-gray-100 text-gray-700 font-bold rounded-2xl hover:bg-gray-50 transition-colors mt-6"
                         >
                             닫기
                         </button>

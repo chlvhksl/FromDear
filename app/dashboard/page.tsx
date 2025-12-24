@@ -127,8 +127,14 @@ export default function DashboardPage() {
         }
     };
 
+    const [replyContent, setReplyContent] = useState('');
+    const [isPrivateReply, setIsPrivateReply] = useState(false);
+    const [replyLoading, setReplyLoading] = useState(false);
+
     const handleMessageClick = async (msg: any) => {
         setSelectedMessage(msg);
+        setReplyContent(msg.reply_content || '');
+        setIsPrivateReply(msg.is_private_reply || false);
 
         if (!msg.is_opened) {
             await supabase
@@ -137,6 +143,41 @@ export default function DashboardPage() {
                 .eq('id', msg.id);
 
             setMessages(prev => prev.map(m => m.id === msg.id ? { ...m, is_opened: true } : m));
+        }
+    };
+
+    const handleReplySubmit = async () => {
+        if (!replyContent.trim()) return;
+        setReplyLoading(true);
+
+        try {
+            const { error } = await supabase
+                .from('messages')
+                .update({
+                    reply_content: replyContent,
+                    is_private_reply: isPrivateReply
+                })
+                .eq('id', selectedMessage.id);
+
+            if (error) throw error;
+
+            alert('답장이 등록되었습니다! 💌');
+
+            // Update local state
+            setMessages(prev => prev.map(m =>
+                m.id === selectedMessage.id
+                    ? { ...m, reply_content: replyContent, is_private_reply: isPrivateReply }
+                    : m
+            ));
+
+            // Close the modal and reset selection
+            setSelectedMessage(null);
+
+        } catch (err: any) {
+            console.error('Reply Error:', err);
+            alert('답장 등록 실패: ' + err.message);
+        } finally {
+            setReplyLoading(false);
         }
     };
 
@@ -154,6 +195,26 @@ export default function DashboardPage() {
                 <SnowEffect />
 
                 <div className="max-w-5xl mx-auto relative z-10">
+                    {/* Announcement Banner */}
+                    <div className="bg-gradient-to-r from-red-500 to-pink-500 text-white p-4 rounded-2xl shadow-lg mb-8 flex items-center justify-between animate-pulse">
+                        <div className="flex items-center gap-3">
+                            <span className="text-2xl">💖</span>
+                            <div>
+                                <h3 className="font-bold">답장 기능 OPEN!</h3>
+                                <p className="text-sm text-red-100">감동의 <b className="text-white underline">선물</b>에 화답해주세요! 💌 (모두에게 공개돼요!)</p>
+                            </div>
+                        </div>
+                        <button
+                            onClick={(e) => {
+                                const banner = e.currentTarget.parentElement;
+                                if (banner) banner.style.display = 'none';
+                            }}
+                            className="p-2 hover:bg-white/20 rounded-full transition-colors"
+                        >
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                        </button>
+                    </div>
+
                     <header className="flex flex-col md:flex-row justify-between items-center mb-10 gap-6">
                         <div className="text-center md:text-left">
                             <div className="inline-block px-3 py-1 bg-red-100 text-red-600 rounded-full text-xs font-bold mb-2">
@@ -242,6 +303,11 @@ export default function DashboardPage() {
                                         {!msg.is_opened && (
                                             <div className="absolute top-4 right-4 w-3 h-3 bg-red-600 rounded-full animate-ping" />
                                         )}
+
+                                        {/* Reply Indicator */}
+                                        {msg.reply_content && (
+                                            <div className="absolute bottom-3 right-3 text-lg">💬</div>
+                                        )}
                                     </div>
                                 ))}
                             </div>
@@ -261,10 +327,10 @@ export default function DashboardPage() {
                 {/* Message Detail Modal */}
                 {selectedMessage && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={() => setSelectedMessage(null)}>
-                        <div className="bg-white rounded-3xl w-full max-w-lg p-8 shadow-2xl transform transition-all scale-100 relative translate-y-0" onClick={e => e.stopPropagation()}>
+                        <div className="bg-white rounded-3xl w-full max-w-lg p-6 md:p-8 shadow-2xl transform transition-all scale-100 relative translate-y-0 max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
                             <button
                                 onClick={() => setSelectedMessage(null)}
-                                className="absolute top-6 right-6 text-gray-300 hover:text-gray-500 transition-colors"
+                                className="absolute top-6 right-6 text-gray-300 hover:text-gray-500 transition-colors z-10"
                             >
                                 <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
                             </button>
@@ -309,11 +375,45 @@ export default function DashboardPage() {
                                 </div>
                             )}
 
-                            <div className="bg-[#FFFDF5] p-8 rounded-2xl text-gray-700 leading-relaxed whitespace-pre-wrap max-h-[50vh] overflow-y-auto mb-8 text-lg border border-red-50 shadow-inner">
+                            <div className="bg-[#FFFDF5] p-8 rounded-2xl text-gray-700 leading-relaxed whitespace-pre-wrap mb-8 text-lg border border-red-50 shadow-inner">
                                 {selectedMessage.content}
                             </div>
 
-                            <div className="flex gap-3">
+                            {/* Reply Section */}
+                            <div className="border-t pt-6">
+                                <h4 className="font-bold text-gray-800 mb-2 flex items-center gap-2">
+                                    💬 답장 남기기
+                                    <span className="text-xs font-normal text-gray-400 ml-auto">
+                                        * 공개 답장은 선물함 방문자도 볼 수 있어요!
+                                    </span>
+                                </h4>
+                                <textarea
+                                    value={replyContent}
+                                    onChange={(e) => setReplyContent(e.target.value)}
+                                    placeholder="친구에게 감사의 답장을 남겨보세요 :)"
+                                    className="w-full p-4 bg-gray-50 rounded-xl border border-gray-200 focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none text-gray-700 mb-3 resize-none h-24"
+                                />
+                                <div className="flex items-center justify-between mb-4">
+                                    <label className="flex items-center gap-2 cursor-pointer text-gray-600">
+                                        <input
+                                            type="checkbox"
+                                            checked={isPrivateReply}
+                                            onChange={(e) => setIsPrivateReply(e.target.checked)}
+                                            className="w-5 h-5 rounded text-red-600 focus:ring-red-500 border-gray-300"
+                                        />
+                                        <span className="text-sm font-bold">🔒 비공개로 답장하기 (나만 보기)</span>
+                                    </label>
+                                </div>
+                                <button
+                                    onClick={handleReplySubmit}
+                                    disabled={replyLoading}
+                                    className="w-full py-3 bg-gray-800 text-white font-bold rounded-xl hover:bg-gray-900 transition-colors disabled:opacity-50"
+                                >
+                                    {replyLoading ? '저장 중...' : '답장 등록하기 💌'}
+                                </button>
+                            </div>
+
+                            <div className="flex gap-3 mt-6 pt-4 border-t">
                                 <button
                                     onClick={() => setSelectedMessage(null)}
                                     className="flex-1 py-4 bg-gray-100 text-gray-700 font-bold rounded-2xl hover:bg-gray-200 transition-colors"
