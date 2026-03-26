@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import ShutdownNotice from "@/components/ShutdownNotice";
 
 export const metadata: Metadata = {
   title: "FromDear - 선물함 🎁",
@@ -32,7 +33,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko">
-      <body className="antialiased">{children}</body>
+      <body className="antialiased">
+        {children}
+        <ShutdownNotice />
+      </body>
     </html>
   );
 }
